@@ -29,9 +29,8 @@ fastify.post('/webhook', async function handler (request, reply) {
 });
 
 const port = Number(process.env.PORT as string);
-const host = env === 'production' ? '0.0.0.0' : '127.0.0.1';
 
-fastify.listen({ host: host, port: port }, (err) => {
+fastify.listen({ port: port }, (err) => {
     if (err) {
         fastify.log.error(err)
         process.exit(1)

@@ -29,7 +29,7 @@ export class InstagramService {
     }
     
     private async getMediaDataUsingGraphQl(id: string): Promise<InstagramPost> {
-        const instagramUrl = `http://api.scrape.do?token=${this.token}&url=https://www.instagram.com/api/graphql`;
+        const instagramUrl = `https://www.instagram.com/api/graphql`;
         const instagramGraphQl = new InstagramGraphql();
 
         const headers = instagramGraphQl.getGraphqlHeaders();

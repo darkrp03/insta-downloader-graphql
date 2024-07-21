@@ -5,6 +5,12 @@ import { injectable } from "inversify";
 
 @injectable()
 export class InstagramService {
+    private readonly token: string;
+
+    constructor() {
+        this.token = process.env.SCRAPE_TOKEN as string;
+    }
+
     async getMedia(id: string): Promise<MediaItem | MediaItem[] | undefined> {
         const instagramResponse = await this.getMediaDataUsingGraphQl(id);
         const post = instagramResponse.data.xdt_shortcode_media;
@@ -23,7 +29,7 @@ export class InstagramService {
     }
     
     private async getMediaDataUsingGraphQl(id: string): Promise<InstagramPost> {
-        const instagramUrl = `https://www.instagram.com/api/graphql`;
+        const instagramUrl = `http://api.scrape.do?token=${this.token}&url=https://www.instagram.com/api/graphql`;
         const instagramGraphQl = new InstagramGraphql();
 
         const headers = instagramGraphQl.getGraphqlHeaders();

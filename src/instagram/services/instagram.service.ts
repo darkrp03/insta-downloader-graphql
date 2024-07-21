@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { InstagramGraphql } from "../../configs/graphql";
 import { InstagramPost, MediaItem, ShortCodeMedia } from "../interfaces/instagram";
 import { injectable } from "inversify";
+import fs from "fs";
 
 @injectable()
 export class InstagramService {
@@ -44,6 +45,8 @@ export class InstagramService {
         if (!response.body) {
             throw new Error('Cannot to load the response body!');
         }
+
+        fs.writeFileSync('test.json', await response.text());
 
         const data = await response.json() as InstagramPost;
 

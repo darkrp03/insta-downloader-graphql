@@ -1,23 +1,27 @@
 import "reflect-metadata";
-import axios from "axios";
 import { InstagramGraphql } from "../../configs/graphql";
 import { InstagramPost, MediaItem, ShortCodeMedia } from "../interfaces/instagram";
 import { injectable } from "inversify";
 
 @injectable()
 export class InstagramService {
-    private getRegexValue(url: string, regex: RegExp): string | undefined {
-        const check = url.match(regex);
+    async getMedia(id: string): Promise<MediaItem | MediaItem[] | undefined> {
+        const instagramResponse = await this.getMediaDataUsingGraphQl(id);
+        const post = instagramResponse.data.xdt_shortcode_media;
 
-        let id: string | undefined;
-
-        if (check) {
-            id = check.at(-1);
+        if (post.edge_sidecar_to_children) {
+            return this.parseCarousel(instagramResponse);
         }
 
-        return id;
-    }
+        if (post.video_url) {
+            return this.parseVideo(post);
+        }
 
+        if (post.display_url) {
+            return this.parsePhoto(post);
+        }
+    }
+    
     private async getMediaDataUsingGraphQl(id: string): Promise<InstagramPost> {
         const instagramUrl = `https://www.instagram.com/api/graphql`;
         const instagramGraphQl = new InstagramGraphql();
@@ -25,11 +29,17 @@ export class InstagramService {
         const headers = instagramGraphQl.getGraphqlHeaders();
         const graphqlData = instagramGraphQl.getPostGraphqlQueryString(id as string);
 
-        const response = await axios.post(instagramUrl, graphqlData, {
-            headers: headers
-        })
+        const response = await fetch(instagramUrl, {
+            method: 'POST',
+            headers: headers,
+            body: graphqlData
+        });
 
-        const data = response.data as InstagramPost;
+        if (!response.body) {
+            throw new Error('Cannot to load the response body!');
+        }
+
+        const data = await response.json() as InstagramPost;
 
         return data;
     }
@@ -71,59 +81,29 @@ export class InstagramService {
 
         for (const edge of carousel.edges) {
             const node = edge.node;
+            const mediaItem = this.getPhotoOrVideo(node);
 
-            if (node.video_url) {
-                const video = this.parseVideo(edge.node);
-                media.push(video);
-
+            if (!mediaItem) {
                 continue;
             }
 
-            if (node.display_url) {
-                const photo = this.parsePhoto(edge.node);
-                media.push(photo);
-
-                continue;
-            }
+            media.push(mediaItem);
         }
 
         return media;
     }
 
-    async getMedia(id: string): Promise<MediaItem[]> {
-        const instagramResponse = await this.getMediaDataUsingGraphQl(id);
-        const instagramMedia: MediaItem[] = [];
+    private getPhotoOrVideo(node: ShortCodeMedia): MediaItem | undefined {
+        if (node.video_url) {
+            const video = this.parseVideo(node);
 
-        const post = instagramResponse.data.xdt_shortcode_media;
-
-        if (post.edge_sidecar_to_children) {
-            return this.parseCarousel(instagramResponse);
+            return video;
         }
 
-        if (post.video_url) {
-            const video = this.parseVideo(post);
-
-            instagramMedia.push(video);
+        if (node.display_url) {
+            const photo = this.parsePhoto(node);
+            
+            return photo
         }
-
-        if (post.display_url) {
-            const photo = this.parsePhoto(post);
-
-            instagramMedia.push(photo);
-        }
-
-        return instagramMedia;
-    }
-
-    getReelsInfoFromUrl(url: string): string | undefined {
-        const reelRegex = /^https:\/\/(?:www\.)?instagram\.com\/reels?\/([a-zA-Z0-9_-]+)\/?/;
-        
-        return this.getRegexValue(url, reelRegex);
-    }
-
-    getPostInfoFromUrl(url: string): string | undefined {
-        const postRegex = /^https:\/\/(?:www\.)?instagram\.com\/p\/([a-zA-Z0-9_-]+)\/?/;
-
-        return this.getRegexValue(url, postRegex);
     }
 }

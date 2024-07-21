@@ -1,13 +1,12 @@
-import { TelegramBot } from "./telegram/bot.js";
-import { loadAwsCredentials } from "./configs/aws.js";
 import dotenv from "dotenv";
+import ngrok from "@ngrok/ngrok";
 import Fastify from 'fastify'
+import { TelegramBot } from "./telegram/bot.js";
 import { loadContainers } from "./configs/container.js";
 
 const env = process.env.NODE_ENV || 'development';
 dotenv.config({path: `.env.${env}`});
 
-loadAwsCredentials();
 loadContainers();
 
 const bot = new TelegramBot();
@@ -28,11 +27,25 @@ fastify.post('/webhook', async function handler (request, reply) {
     }
 });
 
-const port = Number(process.env.PORT as string);
+const port = Number(process.env.PORT);
 
-fastify.listen({ port: port }, (err) => {
+if (Number.isNaN(port)) {
+    throw new Error('Incorrect port value!');
+}
+
+fastify.listen({ port: port }, async (err) => {
     if (err) {
         fastify.log.error(err)
         process.exit(1)
     }
-}) 
+
+    const listener = await ngrok.connect({addr: port, authtoken_from_env: true});
+    const url = listener.url();
+
+    if (!url) {
+        throw new Error('Empty ngrok url!');
+    }
+
+    await bot.setWebhook(url);
+    console.log(url);
+});

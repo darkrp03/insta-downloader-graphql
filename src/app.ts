@@ -47,5 +47,4 @@ fastify.listen({ port: port }, async (err) => {
     }
 
     await bot.setWebhook(url);
-    console.log(url);
 });

@@ -7,9 +7,19 @@ import { RegexService } from "../../instagram/services/regex.service";
 
 @injectable()
 export class TelegramMessageService {
+    private readonly userId: number;
+
+    constructor() {
+        this.userId = Number(process.env.USER_ID);
+    }
+
     async processMessage(ctx: Context) {
         try {
             if (!ctx.message || !ctx.text) {
+                return;
+            }
+
+            if (!Number.isNaN(this.userId) && this.userId !== ctx.message.from.id) {
                 return;
             }
 
@@ -21,7 +31,7 @@ export class TelegramMessageService {
             }
 
             await ctx.reply(locale.messages.loading);
-            const media = await instagramService.getMedia(id);
+            const media = await instagramService.getReelUrl(id);
 
             if (!media) {
                 return await ctx.reply(locale.messages.fail);

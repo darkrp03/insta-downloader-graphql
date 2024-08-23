@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import axios from "axios";
 import locale from "../../locales/en.json";
 import { Context } from "telegraf";
 import { injectable } from "inversify";
@@ -7,19 +8,9 @@ import { RegexService } from "../../instagram/services/regex.service";
 
 @injectable()
 export class TelegramMessageService {
-    private readonly userId: number;
-
-    constructor() {
-        this.userId = Number(process.env.USER_ID);
-    }
-
     async processMessage(ctx: Context) {
         try {
             if (!ctx.message || !ctx.text) {
-                return;
-            }
-
-            if (!Number.isNaN(this.userId) && this.userId !== ctx.message.from.id) {
                 return;
             }
 
@@ -37,10 +28,15 @@ export class TelegramMessageService {
                 return await ctx.reply(locale.messages.fail);
             }
 
-            await ctx.sendVideo(media, { supports_streaming: true });
+            const response = await axios.get(media, {
+                responseType: 'arraybuffer'
+            })
+
+            await ctx.sendVideo({ source: response.data });
         }
         catch (err) {
             await ctx.reply(locale.messages.fail);
+            console.log(err);
             throw err;
         }
     }

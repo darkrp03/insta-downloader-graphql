@@ -5,18 +5,8 @@ import { injectable } from "inversify";
 
 @injectable()
 export class TelegramCommandService {
-    private readonly userId: number;
-
-    constructor() {
-        this.userId = Number(process.env.USER_ID);
-    }
-
     async start(ctx: Context) {
         if (!ctx.message) {
-            return;
-        }
-
-        if (!Number.isNaN(this.userId) && this.userId !== ctx.message.from.id) {
             return;
         }
 
@@ -28,10 +18,6 @@ export class TelegramCommandService {
 
     async help(ctx: Context) {
         if (!ctx.message) {
-            return;
-        }
-
-        if (!Number.isNaN(this.userId) && this.userId !== ctx.message.from.id) {
             return;
         }
 

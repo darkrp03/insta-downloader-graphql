@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import { InstagramPost, ShortCodeMedia } from "../interfaces/instagram";
+import axios from "axios";
+import { InstagramPost } from "../interfaces/instagram";
 import { injectable } from "inversify";
 import { GraphqlService } from "./graphql.service";
 
@@ -29,18 +30,16 @@ export class InstagramService {
         const encodedScraperToken = encodeURIComponent(this.token);
 
         const url = `http://api.scrape.do?token=${encodedScraperToken}&url=${instagramUrl}&customHeaders=true`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: GraphqlService.getHeaders(),
-            body: GraphqlService.getGraphqlBody(id)
+        const body = GraphqlService.getGraphqlBody(id)
+
+        const response = await axios.post(url, body, {
+            headers: GraphqlService.getHeaders()
         });
 
-        if (!response.body) {
+        if (!response.data) {
             throw new Error('Cannot to load the response body!');
         }
 
-        const data = await response.json();
-
-        return data;
+        return response.data;
     }
 }

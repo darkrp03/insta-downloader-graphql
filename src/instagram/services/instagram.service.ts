@@ -1,129 +1,42 @@
-import "reflect-metadata";
 import axios from "axios";
-import { InstagramGraphql } from "../../configs/graphql";
-import { InstagramPost, MediaItem, ShortCodeMedia } from "../interfaces/instagram";
-import { injectable } from "inversify";
+import { InstagramPost } from "../interfaces/instagram";
+import { GraphqlService } from "./graphql.service";
 
-@injectable()
 export class InstagramService {
-    private getRegexValue(url: string, regex: RegExp): string | undefined {
-        const check = url.match(regex);
+    private readonly token: string;
 
-        let id: string | undefined;
+    constructor() {
+        const token = process.env.SCRAPE_TOKEN
 
-        if (check) {
-            id = check.at(-1);
+        if (!token) {
+            throw new Error('Empty scrape token!');;
         }
 
-        return id;
+        this.token = token;
     }
 
-    private async getMediaDataUsingGraphQl(id: string): Promise<InstagramPost> {
-        const instagramUrl = `https://www.instagram.com/api/graphql`;
-        const instagramGraphQl = new InstagramGraphql();
-
-        const headers = instagramGraphQl.getGraphqlHeaders();
-        const graphqlData = instagramGraphQl.getPostGraphqlQueryString(id as string);
-
-        const response = await axios.post(instagramUrl, graphqlData, {
-            headers: headers
-        })
-
-        const data = response.data as InstagramPost;
-
-        return data;
-    }
-
-    private parseVideo(media: ShortCodeMedia): MediaItem {
-        const videoUrl = media.video_url;
-
-        if (!videoUrl) {
-            throw new Error('Empty video_url property!');
-        }
-
-        return {
-            media: videoUrl,
-            type: 'video'
-        };
-    }
-
-    private parsePhoto(media: ShortCodeMedia): MediaItem {
-        const photoUrl = media.display_url;
-
-        if (!photoUrl) {
-            throw new Error('Empty display_url property!');
-        }
-
-        return {
-            media: photoUrl,
-            type: 'photo'
-        };
-    }
-
-    private parseCarousel(instagramResponse: InstagramPost): MediaItem[] {
-        const carousel = instagramResponse.data.xdt_shortcode_media.edge_sidecar_to_children;
-
-        if (!carousel) {
-            throw new Error('Empty edge_sidecar_to_children value!');
-        }
-
-        const media: MediaItem[] = [];
-
-        for (const edge of carousel.edges) {
-            const node = edge.node;
-
-            if (node.video_url) {
-                const video = this.parseVideo(edge.node);
-                media.push(video);
-
-                continue;
-            }
-
-            if (node.display_url) {
-                const photo = this.parsePhoto(edge.node);
-                media.push(photo);
-
-                continue;
-            }
-        }
-
-        return media;
-    }
-
-    async getMedia(id: string): Promise<MediaItem[]> {
-        const instagramResponse = await this.getMediaDataUsingGraphQl(id);
-        const instagramMedia: MediaItem[] = [];
-
+    async getReelUrl(id: string): Promise<string | undefined> {
+        const instagramResponse = await this.getMediaData(id);
         const post = instagramResponse.data.xdt_shortcode_media;
 
-        if (post.edge_sidecar_to_children) {
-            return this.parseCarousel(instagramResponse);
-        }
-
-        if (post.video_url) {
-            const video = this.parseVideo(post);
-
-            instagramMedia.push(video);
-        }
-
-        if (post.display_url) {
-            const photo = this.parsePhoto(post);
-
-            instagramMedia.push(photo);
-        }
-
-        return instagramMedia;
+        return post.video_url;
     }
+    
+    private async getMediaData(id: string): Promise<InstagramPost> {
+        const instagramUrl = 'https://www.instagram.com/api/graphql'
+        const encodedScraperToken = encodeURIComponent(this.token);
 
-    getReelsInfoFromUrl(url: string): string | undefined {
-        const reelRegex = /^https:\/\/(?:www\.)?instagram\.com\/reels?\/([a-zA-Z0-9_-]+)\/?/;
-        
-        return this.getRegexValue(url, reelRegex);
-    }
+        const url = `http://api.scrape.do?token=${encodedScraperToken}&url=${instagramUrl}&customHeaders=true`;
+        const body = GraphqlService.getGraphqlBody(id);
 
-    getPostInfoFromUrl(url: string): string | undefined {
-        const postRegex = /^https:\/\/(?:www\.)?instagram\.com\/p\/([a-zA-Z0-9_-]+)\/?/;
+        const response = await axios.post(url, body, {
+            headers: GraphqlService.getHeaders()
+        });
 
-        return this.getRegexValue(url, postRegex);
+        if (!response.data) {
+            throw new Error('Cannot to load the response body!');
+        }
+
+        return response.data;
     }
 }

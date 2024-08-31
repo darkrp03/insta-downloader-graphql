@@ -1,10 +1,7 @@
-import "reflect-metadata";
 import axios from "axios";
 import { InstagramPost } from "../interfaces/instagram";
-import { injectable } from "inversify";
 import { GraphqlService } from "./graphql.service";
 
-@injectable()
 export class InstagramService {
     private readonly token: string;
 
@@ -30,7 +27,7 @@ export class InstagramService {
         const encodedScraperToken = encodeURIComponent(this.token);
 
         const url = `http://api.scrape.do?token=${encodedScraperToken}&url=${instagramUrl}&customHeaders=true`;
-        const body = GraphqlService.getGraphqlBody(id)
+        const body = GraphqlService.getGraphqlBody(id);
 
         const response = await axios.post(url, body, {
             headers: GraphqlService.getHeaders()

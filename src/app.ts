@@ -2,13 +2,10 @@ import dotenv from "dotenv";
 import ngrok from "@ngrok/ngrok";
 import Fastify from 'fastify'
 import { TelegramBot } from "./telegram/bot.js";
-import { loadContainers } from "./configs/container.js";
 import { logger } from "./services/logger.service.js";
 
 const env = process.env.NODE_ENV || 'development';
 dotenv.config({path: `.env.${env}`});
-
-loadContainers();
 
 const bot = new TelegramBot();
 const fastify = Fastify();

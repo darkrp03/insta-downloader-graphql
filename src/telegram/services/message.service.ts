@@ -1,14 +1,11 @@
-import "reflect-metadata";
 import axios from "axios";
-import locale from "../../locales/en.json";
+import { enLocale } from "../../locales/en";
 import { Context } from "telegraf";
-import { injectable } from "inversify";
 import { InstagramService } from "../../instagram/services/instagram.service";
 import { RegexService } from "../../instagram/services/regex.service";
 
-@injectable()
 export class TelegramMessageService {
-    async processMessage(ctx: Context) {
+    async processMessage(ctx: Context): Promise<void> {
         try {
             if (!ctx.message || !ctx.text) {
                 return;
@@ -18,14 +15,18 @@ export class TelegramMessageService {
             let id = RegexService.getReelsInfoFromUrl(ctx.text);
 
             if (!id) {
-                return await ctx.reply(locale.messages.notFound);
+                await ctx.reply(enLocale.messages.notFound);
+
+                return;
             }
 
-            await ctx.reply(locale.messages.loading);
+            await ctx.reply(enLocale.messages.loading);
             const media = await instagramService.getReelUrl(id);
 
             if (!media) {
-                return await ctx.reply(locale.messages.fail);
+                await ctx.reply(enLocale.messages.fail);
+
+                return;
             }
 
             const response = await axios.get(media, {
@@ -35,8 +36,7 @@ export class TelegramMessageService {
             await ctx.sendVideo({ source: response.data });
         }
         catch (err) {
-            await ctx.reply(locale.messages.fail);
-            console.log(err);
+            await ctx.reply(enLocale.messages.fail);
             throw err;
         }
     }

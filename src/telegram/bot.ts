@@ -1,8 +1,8 @@
-import { Scenes, Telegraf } from "telegraf";
+import { Telegraf } from "telegraf";
 import { TelegramBotHandlers } from "./handlers/handlers";
 
 export class TelegramBot {
-    private readonly bot: Telegraf<Scenes.WizardContext>;
+    private readonly bot: Telegraf;
 
     constructor() {
         const token = process.env.TELEGRAM_TOKEN;
@@ -15,7 +15,7 @@ export class TelegramBot {
         this.initialize();
     }
 
-    async update(body: any) {
+    async update(body: any): Promise<void> {
         await this.bot.handleUpdate(body);
     }
 
@@ -23,7 +23,7 @@ export class TelegramBot {
         await this.bot.telegram.setWebhook(`${url}/webhook`);
     }
 
-    private initialize() {
+    private initialize(): void {
         const handlers = new TelegramBotHandlers(this.bot);
         handlers.initHandlers();
     }

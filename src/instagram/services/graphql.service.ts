@@ -1,7 +1,7 @@
 import querystring from "querystring";
 
 export class GraphqlService {
-    static getGraphqlBody(id: string) {
+    static getGraphqlBody(id: string): string {
         const requestData = {
             av: "0",
             __d: "www",
@@ -48,7 +48,7 @@ export class GraphqlService {
           return encoded;
     } 
 
-    static getHeaders() {
+    static getHeaders(): any {
         return {
             "Accept": "*/*",
             "Accept-Language": "en-US,en;q=0.5",

@@ -1,5 +1,5 @@
 import querystring from "querystring";
-import { GraphQLData } from "../interfaces/instagram.graphql";
+import { GraphQLData } from "../interfaces/instagram";
 
 export class GraphqlService {
 	getGraphqlData(id: string): GraphQLData {

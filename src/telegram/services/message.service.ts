@@ -1,21 +1,25 @@
-import { enLocale } from "../../locales/en";
+import { messages } from "../models/message";
 import { Context } from "telegraf";
 import { InstagramService } from "../../instagram/services/instagram.service";
 
 export class TelegramMessageService {
-    async processMessage(ctx: Context): Promise<void> {
-        try {
-            if (!ctx.message || !ctx.text) {
-                return;
-            }
+    private readonly instagramService: InstagramService;
 
-            const instagramService = new InstagramService();
-            
-            await ctx.reply(enLocale.messages.loading);
-            const media = await instagramService.getMedia(ctx.text);
+    constructor() {
+        this.instagramService = new InstagramService();
+    }
+
+    async processMessage(ctx: Context): Promise<void> {
+        if (!ctx.message || !ctx.text) {
+            return;
+        }
+
+        try {
+            await ctx.reply(messages.loading);
+            const media = await this.instagramService.getMedia(ctx.text);
 
             if (!media) {
-                await ctx.reply(enLocale.messages.fail);
+                await ctx.reply(messages.fail);
 
                 return;
             }
@@ -23,7 +27,7 @@ export class TelegramMessageService {
             await ctx.sendMediaGroup(media);
         }
         catch (err) {
-            await ctx.reply(enLocale.messages.fail);
+            await ctx.reply(messages.fail);
             throw err;
         }
     }

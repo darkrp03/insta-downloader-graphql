@@ -1,5 +1,5 @@
 export class RegexService {
-    getReelsInfoFromUrl(url: string): string | undefined {
+    getPostId(url: string): string | undefined {
         const reelRegex = /^https:\/\/(?:www\.)?instagram\.com\/reels?\/([a-zA-Z0-9_-]+)\/?/;
         const postRegex = /^https:\/\/(?:www\.)?instagram\.com\/p\/([a-zA-Z0-9_-]+)\/?(?:\?.*)?$/;
 

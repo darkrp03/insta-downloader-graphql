@@ -14,9 +14,12 @@ export interface ShortCodeMedia {
     };
 }
 
-export interface InstagramGraphQLPost {
-    data: {
+export interface InstagramPost {
+    data?: {
         xdt_shortcode_media: ShortCodeMedia;
+    },
+    graphql?: {
+        shortcode_media: ShortCodeMedia
     }
 }
 

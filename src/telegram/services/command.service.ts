@@ -1,4 +1,4 @@
-import { enLocale } from "../../locales/en";
+import { messages } from "../models/message";
 import { Context } from "telegraf";
 
 export class TelegramCommandService {
@@ -8,7 +8,7 @@ export class TelegramCommandService {
         }
 
         const botName = ctx.botInfo.first_name;
-        const startMessage = enLocale.messages.start.replace('{0}', ctx.message.from.first_name).replace('{1}', botName);
+        const startMessage = messages.start.replace('{0}', ctx.message.from.first_name).replace('{1}', botName);
 
         await ctx.reply(startMessage, { parse_mode: 'HTML' });
     }
@@ -18,6 +18,6 @@ export class TelegramCommandService {
             return;
         }
 
-        await ctx.reply(enLocale.messages.help, { parse_mode: 'HTML' });
+        await ctx.reply(messages.help, { parse_mode: 'HTML' });
     }
 }

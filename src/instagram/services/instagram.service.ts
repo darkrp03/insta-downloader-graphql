@@ -1,6 +1,5 @@
 import axios from "axios";
-import fs from "fs";
-import { InstagramGraphQLPost, ShortCodeMedia } from "../interfaces/instagram.graphql";
+import { InstagramPost, ShortCodeMedia } from "../interfaces/instagram";
 import { GraphqlService } from "./graphql.service";
 import { RegexService } from "./regex.service";
 import { Media } from "../../shared/interfaces/media";
@@ -23,7 +22,7 @@ export class InstagramService {
     }
 
     async getMedia(url: string): Promise<Media[] | undefined> {
-        const id = this.regexService.getReelsInfoFromUrl(url);
+        const id = this.regexService.getPostId(url);
 
         if (!id) {
             return;
@@ -35,7 +34,7 @@ export class InstagramService {
         return media;
     }
     
-    private async getMediaData(id: string): Promise<InstagramGraphQLPost> {
+    private async getMediaData(id: string): Promise<InstagramPost> {
         const instagramUrl = 'https://www.instagram.com/api/graphql'
         const encodedScraperToken = encodeURIComponent(this.token);
 
@@ -50,36 +49,16 @@ export class InstagramService {
             throw new Error('Cannot to load the response body!');
         }
 
-        fs.writeFileSync('test.json', JSON.stringify(response.data))
-
         return response.data;
     }
 
-    // private async getMediaDataFromJson(instagramUrl: string): Promise<string | undefined> {
-    //     instagramUrl = instagramUrl.split('?')[0];
+    private async parseAllMedia(instagramResponse: InstagramPost): Promise<Media[] | undefined> {
+        let shortCodeMedia = instagramResponse.data?.xdt_shortcode_media;
 
-    //     if (!instagramUrl) {
-    //         return;
-    //     }
+        if (!shortCodeMedia) {
+            return;
+        }
 
-    //     instagramUrl = instagramUrl + '?__a=1&__d=dis';
-
-    //     const encodedScraperToken = encodeURIComponent(this.token);
-    //     const url = `http://api.scrape.do?token=${encodedScraperToken}&url=${instagramUrl}`;
-
-    //     const response = await axios.get(url);
-
-    //     if (!response.data) {
-    //         throw new Error('Cannot to load the response body!');
-    //     }
-
-    //     const videoUrl: string = response.data;
-
-
-    // }
-
-    private async parseAllMedia(instagramResponse: InstagramGraphQLPost): Promise<Media[] | undefined> {
-        const shortCodeMedia = instagramResponse.data.xdt_shortcode_media;
         const edges = shortCodeMedia.edge_sidecar_to_children
 
         if (edges) {

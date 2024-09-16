@@ -25,9 +25,7 @@ fastify.post('/webhook', async function handler (request, reply) {
     }
 });
 
-const port = Number(process.env.PORT);
-
-fastify.listen({ port: port }, async (err) => {
+fastify.listen({ port: 3000 }, async (err) => {
     if (err) {
         fastify.log.error(err)
         process.exit(1)

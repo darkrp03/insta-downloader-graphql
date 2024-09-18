@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:5000:3000"
     env_file:
       - .env.development
     working_dir: /home/node/app

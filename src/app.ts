@@ -1,11 +1,10 @@
 import dotenv from "dotenv";
-import ngrok from "@ngrok/ngrok";
 import Fastify from 'fastify'
 import { TelegramBot } from "./telegram/bot.js";
 import { logger } from "./services/logger.service.js";
 
 const env = process.env.NODE_ENV || 'development';
-dotenv.config({path: `.env.${env}`});
+dotenv.config({ path: `.env.${env}` });
 
 const bot = new TelegramBot();
 const fastify = Fastify();
@@ -26,22 +25,13 @@ fastify.post('/webhook', async function handler (request, reply) {
     }
 });
 
-const port = Number(process.env.PORT);
+const host = process.env.NODE_ENV === 'development' ? '0.0.0.0' : 'localhost'
 
-fastify.listen({ port: port }, async (err) => {
+fastify.listen({ host: host, port: 3000 }, async (err) => {
     if (err) {
         fastify.log.error(err)
         process.exit(1)
     }
-
-    const listener = await ngrok.connect({addr: port, authtoken_from_env: true});
-    const url = listener.url();
-
-    if (!url) {
-        throw new Error('Empty ngrok url!');
-    }
-
-    await bot.setWebhook(url);
 
     logger.log('info', 'Bot successfully started!');
 });

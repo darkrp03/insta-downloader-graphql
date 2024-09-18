@@ -25,7 +25,9 @@ fastify.post('/webhook', async function handler (request, reply) {
     }
 });
 
-fastify.listen({ port: 3000 }, async (err) => {
+const host = process.env.NODE_ENV === 'development' ? '0.0.0.0' : 'localhost'
+
+fastify.listen({ host: host, port: 3000 }, async (err) => {
     if (err) {
         fastify.log.error(err)
         process.exit(1)

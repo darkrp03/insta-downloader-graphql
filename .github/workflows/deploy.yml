@@ -18,7 +18,7 @@ jobs:
 
       - name: Copy folder to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -r -a "./InstaDownloaderBot (GraphQL)" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:"~"
+          scp -o StrictHostKeyChecking=no -r "./InstaDownloaderBot (GraphQL)" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:"~"
 
       - name: Run deployment commands on EC2
         run: |

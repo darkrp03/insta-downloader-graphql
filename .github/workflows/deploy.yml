@@ -19,7 +19,7 @@ jobs:
       - name: Create directory in home directory on EC2 if not exists
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}
-          mkdir -p /home/${{ secrets.EC2_USER }}/insta-downloader-graphql5
+          'mkdir -p ~/insta-downloader-graphql5'
 
       - name: Copy folder to EC2
         run: |

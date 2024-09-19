@@ -15,10 +15,14 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+      
+      - name: Create directory in home directory on EC2 if not exists
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p '~/InstaDownloaderBot (GraphQL)'"
 
       - name: Copy folder to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -r "./InstaDownloaderBot (GraphQL)" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p '~/InstaDownloaderBot (GraphQL)'"
+          scp -o StrictHostKeyChecking=no -r "./InstaDownloaderBot (GraphQL)" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/InstaDownloaderBot\ \(GraphQL\)
 
       - name: Run deployment commands on EC2
         run: |

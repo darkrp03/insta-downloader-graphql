@@ -1,7 +1,7 @@
 name: Github InstaDownloaderBot Deploy
 
 on:
-  push:
+  pull:
     branches: ["main"]
 
 jobs:

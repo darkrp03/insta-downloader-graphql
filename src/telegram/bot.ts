@@ -1,3 +1,4 @@
+import config from "config";
 import { Telegraf } from "telegraf";
 import { TelegramBotHandlers } from "./handlers/handlers";
 
@@ -5,7 +6,7 @@ export class TelegramBot {
     private readonly bot: Telegraf;
 
     constructor() {
-        const token = process.env.TELEGRAM_TOKEN;
+        const token: string | undefined = config.get('telegramToken');
 
         if (!token) {
             throw new Error('Empty telegram bot token!');

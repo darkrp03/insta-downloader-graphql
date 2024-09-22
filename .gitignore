@@ -6,3 +6,4 @@ dist
 .serverless
 .esbuild
 .idea
+development.ts

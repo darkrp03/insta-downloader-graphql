@@ -6,30 +6,21 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
         with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-      
-      - name: Create directory in home directory on EC2 if not exists
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}
-          'mkdir -p ~/insta-downloader-graphql5'
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
-      - name: Copy folder to EC2
-        run: |
-          scp -o StrictHostKeyChecking=no -r ./insta-downloader-graphql ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} /home/${{ secrets.EC2_USER }}/insta-downloader-graphql
-
-      - name: Run deployment commands on EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'bash -s' <<EOF
-          cd /home/${{ secrets.EC2_USER }}/insta-downloader-graphql
-          npm install
+      - run: 
+          npm ci
           npm run prod
-          ngrok http 3000
-          EOF

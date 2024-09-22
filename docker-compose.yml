@@ -5,9 +5,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "127.0.0.1:5000:3000"
-    env_file:
-      - .env.development
     working_dir: /home/node/app
     volumes:
       - ./:/home/node/app:Z
-    command: "sh -c 'test -d node_modules || npm install && npm run dev'"
+    command: "sh -c 'test -d node_modules || npm install && npm start'"

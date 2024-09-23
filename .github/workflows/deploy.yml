@@ -15,10 +15,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set Environment Variables
+        run: |
+          echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> $GITHUB_ENV
+          echo "SCRAPE_TOKEN=${{ secrets.SCRAPE_TOKEN }}" >> $GITHUB_ENV
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-
       - run: npm ci
       - run: npm run start:prod

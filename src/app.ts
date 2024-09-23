@@ -1,9 +1,9 @@
-process.env["NODE_CONFIG_DIR"] = __dirname + "/config/";
-
-import config from "config";
+import dotenv from "dotenv";
 import Fastify from "fastify";
 import { TelegramBot } from "./telegram/bot.js";
 import { logger } from "./shared/services/logger.service.js";
+
+dotenv.config();
 
 const bot = new TelegramBot();
 const fastify = Fastify();
@@ -24,7 +24,9 @@ fastify.post('/webhook', async function handler (request, reply) {
     }
 });
 
-fastify.listen({ host: config.get('host'), port: 3000 }, async (err) => {
+const host = process.env.NODE_ENV === 'dev' ? '0.0.0.0' : 'localhost';
+
+fastify.listen({ host: host, port: 3000 }, async (err) => {
     if (err) {
         fastify.log.error(err)
         process.exit(1)

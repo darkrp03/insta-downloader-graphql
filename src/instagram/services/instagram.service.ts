@@ -1,4 +1,3 @@
-import config from "config";
 import axios from "axios";
 import { InstagramPost, ShortCodeMedia } from "../interfaces/instagram";
 import { GraphqlService } from "./graphql.service";
@@ -11,7 +10,7 @@ export class InstagramService {
     private readonly regexService: RegexService;
 
     constructor() {
-        const token: string | undefined = config.get('scrapeToken');
+        const token: string | undefined = process.env.SCRAPE_TOKEN;
 
         if (!token) {
             throw new Error('Empty scrape token!');;

@@ -24,8 +24,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install PM2
-        run: npm install pm2 -g
-
-      - name: Start app with PM2
-        run: pm2 start npm -- start:prod
+      - name: Restart app with PM2
+        run: pm2 restart insta-downloader-graphql

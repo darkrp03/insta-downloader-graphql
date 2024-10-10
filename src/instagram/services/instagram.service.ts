@@ -8,6 +8,8 @@ export class InstagramService {
     private readonly token: string;
     private readonly graphQLService: GraphqlService;
     private readonly regexService: RegexService;
+    private readonly MAX_FILE_SIZE: number;
+    private readonly KILOBYTE_SIZE: number;
 
     constructor() {
         const token: string | undefined = process.env.SCRAPE_TOKEN;
@@ -19,6 +21,9 @@ export class InstagramService {
         this.token = token;
         this.graphQLService = new GraphqlService();
         this.regexService = new RegexService();
+
+        this.MAX_FILE_SIZE = 50;
+        this.KILOBYTE_SIZE = 1024;
     }
 
     async getMedia(url: string): Promise<Media[] | undefined> {
@@ -38,10 +43,10 @@ export class InstagramService {
         const instagramUrl = 'https://www.instagram.com/api/graphql'
         const encodedScraperToken = encodeURIComponent(this.token);
 
-        const url = `http://api.scrape.do?token=${encodedScraperToken}&url=${instagramUrl}&customHeaders=true`;
+        // const url = `http://api.scrape.do?token=${encodedScraperToken}&url=${instagramUrl}&customHeaders=true`;
         const graphQLData = this.graphQLService.getGraphqlData(id);
 
-        const response = await axios.post(url, graphQLData.body, {
+        const response = await axios.post(instagramUrl, graphQLData.body, {
             headers: graphQLData.headers
         });
 
@@ -99,16 +104,22 @@ export class InstagramService {
         type = shortcodeMedia.video_url ? 'video' : 'photo';
 
         url = shortcodeMedia.video_url 
-        ? shortcodeMedia.video_url 
-        : shortcodeMedia.display_resources?.at(0)?.src;
+            ? shortcodeMedia.video_url 
+            : shortcodeMedia.display_resources?.at(0)?.src;
 
         if (!url) {
             return;
         }
 
         const response = await axios.get(url, {
-            responseType: 'arraybuffer'
+            responseType: 'stream'
         });
+
+        const size = parseInt(response.headers["content-length"]) / this.KILOBYTE_SIZE / this.KILOBYTE_SIZE;
+
+        if (size > this.MAX_FILE_SIZE) {
+            return;
+        }
 
         return {
             type: type,

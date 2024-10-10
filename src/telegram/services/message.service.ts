@@ -18,7 +18,7 @@ export class TelegramMessageService {
             await ctx.reply(messages.loading);
             const media = await this.instagramService.getMedia(ctx.text);
 
-            if (!media) {
+            if (!media || media.length === 0) {
                 await ctx.reply(messages.fail);
 
                 return;

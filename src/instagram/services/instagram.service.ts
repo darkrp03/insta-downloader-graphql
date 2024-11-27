@@ -41,9 +41,6 @@ export class InstagramService {
     
     private async getMediaData(id: string): Promise<InstagramPost> {
         const instagramUrl = 'https://www.instagram.com/api/graphql'
-        const encodedScraperToken = encodeURIComponent(this.token);
-
-        // const url = `http://api.scrape.do?token=${encodedScraperToken}&url=${instagramUrl}&customHeaders=true`;
         const graphQLData = this.graphQLService.getGraphqlData(id);
 
         const response = await axios.post(instagramUrl, graphQLData.body, {

@@ -2,11 +2,11 @@ name: Github InstaDownloaderBot Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "dev"]
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -15,13 +15,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set Environment Variables
+      
+      - name: Set up SSH key
         run: |
-          echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> $GITHUB_ENV
-          echo "SCRAPE_TOKEN=${{ secrets.SCRAPE_TOKEN }}" >> $GITHUB_ENV
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run start:prod
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+      
+      - name: Connect to EC2 and execute commands
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          echo "Connected to EC2!"
+          # Add your commands here, e.g., pulling the latest changes
+          git pull origin main
+          EOF

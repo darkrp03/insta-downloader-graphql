@@ -6,8 +6,9 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:5000:3000"
+      - "3000:3000"
     working_dir: /home/node/app
     volumes:
       - ./:/home/node/app:Z
-    command: "sh -c 'test -d node_modules || npm install && npm run start:dev'"
+    restart: always
+    command: "sh -c 'test -d node_modules || npm install && npm start'"

@@ -5,20 +5,12 @@ import { RegexService } from "./regex.service";
 import { Media } from "../../shared/interfaces/media";
 
 export class InstagramService {
-    private readonly token: string;
     private readonly graphQLService: GraphqlService;
     private readonly regexService: RegexService;
     private readonly MAX_FILE_SIZE: number;
     private readonly KILOBYTE_SIZE: number;
 
     constructor() {
-        const token: string | undefined = process.env.SCRAPE_TOKEN;
-
-        if (!token) {
-            throw new Error('Empty scrape token!');;
-        }
-
-        this.token = token;
         this.graphQLService = new GraphqlService();
         this.regexService = new RegexService();
 

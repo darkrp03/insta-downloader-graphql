@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
+import ngrok from "@ngrok/ngrok";
 import bodyParser from "body-parser";
 import { TelegramBot } from "./telegram/bot.js";
 import { logger } from "./shared/services/logger.service.js";
@@ -49,6 +50,27 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
+app.listen(3000, async () => {
     logger.log('info', 'Bot successfully started!');
+
+    try {
+        const listener = await ngrok.connect({
+            authtoken: process.env.NGROK_AUTH_TOKEN,
+            addr: 3000,
+        });
+
+        let url = listener.url();
+
+        if (!url) {
+            return;
+        }
+
+        url = `${url}/webhook?apiKey=${apiKey}`
+
+        logger.log('info', `Ngrok tunnel is running!`);
+        await bot.setWebhook(url);
+        logger.log('info', `Webhook was set!`);
+    } catch (err) {
+        logger.log('info', 'Error starting Ngrok: ', err);
+    }
 });

@@ -14,8 +14,9 @@ jobs:
       
       - name: Create SSH Key File
         run: |
+          mkdir -p ~/.ssh                     
           echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws_private_key
-          chmod 600 ~/.ssh/aws_private_key
+          chmod 600 ~/.ssh/aws_private_key    
       
       - name: rsync deployments
         uses: burnett01/rsync-deployments@5.1

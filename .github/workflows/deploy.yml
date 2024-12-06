@@ -22,11 +22,14 @@ jobs:
           remote_user: "${{ secrets.AWS_USER }}"
           remote_key: "${{ secrets.AWS_PRIVATE_KEY }}"
       
-      - name: Run Docker Compose on Remote Server
-        env:
-          REMOTE_SSH_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+      - name: Create SSH Key File
         run: |
-          ssh -i $REMOTE_SSH_KEY -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }} << EOF
+          echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws_private_key
+          chmod 600 ~/.ssh/aws_private_key
+      
+      - name: Run Docker Compose on Remote Server
+        run: |
+          ssh -i ~/.ssh/aws_private_key -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }} << EOF
             cd ~/insta-downloader-graphql
             docker-compose down
             docker-compose up --build -d

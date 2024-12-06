@@ -21,14 +21,6 @@ app.use(bodyParser.json());
 app.post('/webhook', async (req, res) => {
     logger.log('info', 'Process the incoming request');
 
-    const host = req.headers.host;
-
-    if (!host?.includes('ngrok')) {
-        res.sendStatus(200);
-
-        return;
-    }
-
     const userApiKey = req.query.apiKey?.toString();
 
     if (userApiKey !== apiKey) {

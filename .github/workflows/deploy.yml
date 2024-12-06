@@ -18,15 +18,10 @@ jobs:
           echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws_private_key
           chmod 600 ~/.ssh/aws_private_key    
       
-      - name: rsync deployments
-        uses: burnett01/rsync-deployments@5.1
-        with:
-          switches: -avzr --delete
-          path: ./*
-          remote_path: ~/insta-downloader-graphql
-          remote_host: "${{ secrets.AWS_IPV4_DNS }}"
-          remote_user: "${{ secrets.AWS_USER }}"
-          remote_key: "${{ secrets.AWS_PRIVATE_KEY }}"
+      - name: Copy Folder to Remote Server
+        run: |
+          scp -i ~/.ssh/aws_private_key -o StrictHostKeyChecking=no -r ./ \
+            ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }}:~/insta-downloader-graphql
       
       - name: Run Docker Compose on Remote Server
         run: |
@@ -35,3 +30,6 @@ jobs:
             sudo docker compose down
             sudo docker compose up --build -d
           EOF
+      
+      - name: Clean Up SSH Key
+        run: rm -f ~/.ssh/aws_private_key

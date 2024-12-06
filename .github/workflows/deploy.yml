@@ -2,7 +2,7 @@ name: Github InstaDownloaderBot Deploy
 
 on:
   push:
-    branches: ["main", "dev"]
+    branches: ["main"]
 
 jobs:
   deploy:
@@ -22,7 +22,7 @@ jobs:
         run: |
           scp -i ~/.ssh/aws_private_key -o StrictHostKeyChecking=no -r ./* \
             ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }}:~/insta-downloader-graphql
-            
+
       - name: Run Docker Compose on Remote Server
         run: |
           ssh -i ~/.ssh/aws_private_key -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }} << EOF

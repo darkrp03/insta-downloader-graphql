@@ -24,9 +24,9 @@ NGROK_AUTH_TOKEN
 <b>API_KEY</b> - your custom token to protect the /webhook endpoint from another users.  <br>
 
 # Installation
-1.Clone this project<br>
-2.Open cmd and navigate to the project folder.<br>
-3.Run <b>docker-compose.yml</b>
+1.Clone this project. <br>
+2.Open cmd and navigate to the project folder. <br>
+3.Run <b>docker-compose.yml. </b>
 ```bash
 docker compose up
 ```

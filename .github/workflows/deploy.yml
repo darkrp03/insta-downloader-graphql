@@ -18,10 +18,16 @@ jobs:
           echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws_private_key
           chmod 600 ~/.ssh/aws_private_key    
       
-      - name: Copy Folder to Remote Server
+      - name: Create Remote Directory
+        run: |
+          ssh -i ~/.ssh/aws_private_key -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }} << EOF
+            mkdir -p ~/insta-downloader-graphql
+          EOF
+      
+      - name: Copy Files to Remote Server
         run: |
           scp -i ~/.ssh/aws_private_key -o StrictHostKeyChecking=no -r ./* \
-            ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }}:~/insta-downloader-graphql
+            ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }}:~/insta-downloader-graphql/
 
       - name: Run Docker Compose on Remote Server
         run: |

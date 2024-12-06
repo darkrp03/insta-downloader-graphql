@@ -12,6 +12,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
+      - name: Create SSH Key File
+        run: |
+          echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws_private_key
+          chmod 600 ~/.ssh/aws_private_key
+      
       - name: rsync deployments
         uses: burnett01/rsync-deployments@5.1
         with:
@@ -21,11 +26,6 @@ jobs:
           remote_host: "${{ secrets.AWS_IPV4_DNS }}"
           remote_user: "${{ secrets.AWS_USER }}"
           remote_key: "${{ secrets.AWS_PRIVATE_KEY }}"
-      
-      - name: Create SSH Key File
-        run: |
-          echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws_private_key
-          chmod 600 ~/.ssh/aws_private_key
       
       - name: Run Docker Compose on Remote Server
         run: |

@@ -6,23 +6,30 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-
+    runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Create SSH Key File
+        run: |
+          mkdir -p ~/.ssh                     
+          echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws_private_key
+          chmod 600 ~/.ssh/aws_private_key    
+      
+      - name: Copy Folder to Remote Server
+        run: |
+          scp -i ~/.ssh/aws_private_key -o StrictHostKeyChecking=no -r ./* \
+            ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }}:~/insta-downloader-graphql
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Restart app with PM2
-        run: pm2 restart insta-downloader
+      - name: Run Docker Compose on Remote Server
+        run: |
+          ssh -i ~/.ssh/aws_private_key -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.AWS_IPV4_DNS }} << EOF
+            cd ~/insta-downloader-graphql
+            sudo docker compose down
+            sudo docker compose up --build -d
+          EOF
+      
+      - name: Clean Up SSH Key
+        run: rm -f ~/.ssh/aws_private_key

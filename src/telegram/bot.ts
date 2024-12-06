@@ -20,7 +20,7 @@ export class TelegramBot {
     }
 
     async setWebhook(url: string): Promise<void> {
-        await this.bot.telegram.setWebhook(`${url}/webhook`);
+        await this.bot.telegram.setWebhook(url);
     }
 
     private initialize(): void {

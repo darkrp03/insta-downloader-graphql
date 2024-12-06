@@ -4,24 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:prod": "npx tsc && cross-env NODE_ENV=prod node dist/app.js",
-    "start:dev": "npx tsc && cross-env NODE_ENV=dev node dist/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npx tsc && node dist/app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.7.6",
-    "dotenv": "^16.4.5",
-    "fastify": "^4.28.1",
-    "telegraf": "^4.16.3",
-    "winston": "^3.14.2"
+    "@ngrok/ngrok": "^1.4.1",
+    "axios": "1.7.9",
+    "body-parser": "1.20.3",
+    "dotenv": "16.4.7",
+    "express": "4.21.1",
+    "telegraf": "4.16.3",
+    "winston": "3.17.0"
   },
   "devDependencies": {
-    "@types/config": "^3.3.5",
-    "@types/node": "^20.16.2",
-    "cross-env": "^7.0.3",
-    "typescript": "^5.5.4"
+    "@types/express": "5.0.0",
+    "@types/node": "22.10.1",
+    "typescript": "5.7.2"
   }
 }
